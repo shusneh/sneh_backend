@@ -5,17 +5,15 @@ import mongoose from 'mongoose'
 import { DB_NAME } from './constants.js'
 import express from 'express'
 import connectDB from './db/index.js';
+import {app} from './app.js'
 
-const app=express();
 
 dotenv.config({
     path:"./env"
 })
 
 
-app.get("/",(req,res)=>{
-    res.send("hi there develpment is on track it will come soon :-)")
-})
+
 
 
 
