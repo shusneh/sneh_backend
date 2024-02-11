@@ -291,55 +291,80 @@ const updateAccountDetails = asyncHandler(async(req, res) => {
 });
 
 const updateUserAvatar = asyncHandler(async(req,res)=>{
-    const avatarLocalPath = req.file?.path;
-    //const oldPublic_id = req.avatarPublic_id;
-    // if(!oldPublic_id){
-    //     return new ApiError(400,"old id is not there");
-    // }
-    // console.log(oldPublic_id);
+     /* fetching old avatar public id */
+     const avatarLocalPath = req.file?.path
+    const oldPublic_id = req.user.avatar;
+    if(!oldPublic_id){
+        return new ApiError(400,"old id is not there");
+    }
+    let public_id = "";
+    for (let index = 57; index < 77; index++) {
+        public_id+=oldPublic_id[index];        
+    }
+    console.log("old file is deleted");
+    /* fetching old avatar public id */
+    console.log(req.files);
+    
 
-    if(!avatarLocalPath){
-        return new ApiError(400,"Avatar required");
+    if (!avatarLocalPath) {
+        throw new ApiError(400, "Avatar file is missing")
     }
 
-    const avatar = await uploadOnCloudinary(avatarLocalPath);
-    //const deleteOldAvatar = await destroyOnCloudinary(oldPublic_id);
-    if(!avatar.url){
-        return new ApiError(400,"Uploading failed");
+    //TODO: delete old image - assignment
+
+    const avatar = await uploadOnCloudinary(avatarLocalPath)
+
+    if (!avatar.url) {
+        throw new ApiError(400, "Error while uploading on avatar")
+        
     }
 
     const user = await User.findByIdAndUpdate(
-        req.user._id,
+        req.user?._id,
         {
-            $set : {
-                avatar : avatar.url
+            $set:{
+                avatar: avatar.url
             }
         },
-        {new : true}
+        {new: true}
     ).select("-password")
 
-    return res.status(200)
+    const response = await destroyOnCloudinary(public_id);
+
+    return res
+    .status(200)
     .json(
-        new ApiResponse(200,user,"* Avatar updated successfully *")
+        new ApiResponse(200, user, "Avatar image updated successfully")
     )
 })
 
-//delete previous image here
+//delete previous image here ****DONE****
 
 const updateUserCoverImage = asyncHandler(async(req,res)=>{
+    /* fetching old cover image public id */
+    const oldPublic_id = req.user.coverImage;
+    if(!oldPublic_id){
+        return new ApiError(400,"old id is not there");
+    }
+    let public_id = "";
+    for (let index = 57; index < 77; index++) {
+        public_id+=oldPublic_id[index];        
+    }
+    /* fetching old cover image public id */
+    
     const coverImageLocalPath = req.file?.path;
     
     if(!coverImageLocalPath){
-        return new ApiError(400,"Avatar required");
+        return new ApiError(400,"CoverImage required");
     }
-
-    const coverImage = uploadOnCloudinary(coverImageLocalPath);
-
+    
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+    
     if(!coverImage.url){
         return new ApiError(400,"Uploading failed");
     }
-
-    const user = await User.findByIdAndDelete(
+    
+    const user = await User.findByIdAndUpdate(
         req.user._id,
         {
             $set : {
@@ -347,13 +372,13 @@ const updateUserCoverImage = asyncHandler(async(req,res)=>{
             }
         },
         {new : true}
-    ).select("-password")
-    
-    
-
-    return res.status(200)
+        ).select("-password")
+        
+        const response = await destroyOnCloudinary(public_id);
+        console.log("old file is deleted");
+        return res.status(200)
     .json(
-        new ApiResponse(200,user,"* Avatar updated successfully *")
+        new ApiResponse(200,{user,response},"* cover image updated successfully *")
     )
 })
 
@@ -368,5 +393,5 @@ export {
     getCurrentUser,
     updateAccountDetails,
     updateUserAvatar,
-    updateUserCoverImage
+    updateUserCoverImage,
 }

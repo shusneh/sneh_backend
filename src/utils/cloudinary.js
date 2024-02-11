@@ -9,7 +9,7 @@ cloudinary.config({
 const uploadOnCloudinary=async (localFilePath,name)=>{
     try {
         if(!localFilePath){
-            console.log("please give some file path for ",name);
+            console.log("please give some file path for ",name||"");
             return null;
         }
         const response=await cloudinary.uploader.upload(localFilePath,{
@@ -32,9 +32,9 @@ const destroyOnCloudinary=async (public_id)=>{
             return null;
         }
         const response=await cloudinary.uploader.destroy(public_id,{
-            resource_type:"auto"
+            resource_type:"image"
         })
-      console.log("file is deleted cloudinary ");
+      console.log("file is deleted from cloudinary ");
        
         return response;
     } catch (err) {

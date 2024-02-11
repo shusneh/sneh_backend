@@ -8,7 +8,8 @@ import { registerUser,
     getCurrentUser, 
     updateAccountDetails,
     updateUserAvatar,
-    updateUserCoverImage
+    updateUserCoverImage,
+   
     } from "../controllers/user.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 const router = Router()
@@ -32,6 +33,7 @@ router.route("/register").post(
     router.route("/refresh-token").post(refreshAccessToken);
     router.route("/change-password").post(verifyJWT, changeCurrentPassword);
     router.route("/current-user").post(verifyJWT, getCurrentUser);
-    router.route("/update-account").post(verifyJWT, updateAccountDetails);
-    router.route("/updateAvatar").post(verifyJWT, updateUserAvatar);
+    router.route("/update-account").patch(verifyJWT, updateAccountDetails);
+    router.route("/updateAvatar").patch(verifyJWT,upload.single("avatar"), updateUserAvatar);
+    router.route("/updateCoverImage").patch(verifyJWT,upload.single("coverImage"), updateUserCoverImage);
 export default router
